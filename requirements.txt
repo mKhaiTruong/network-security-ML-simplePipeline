@@ -1,0 +1,16 @@
+python-dotenv
+Flask
+Flask-Cors
+pytest
+pandas
+mlflow
+notebook
+numpy
+scikit-learn
+matplotlib
+python-box
+pyYAML
+types-PyYAML
+tqdm
+ensure
+joblib
