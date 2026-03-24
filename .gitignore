@@ -5,3 +5,4 @@ logs/
 artifacts/
 .env
 *.egg-info/
+Network_data/
