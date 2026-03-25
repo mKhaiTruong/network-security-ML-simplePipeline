@@ -70,7 +70,7 @@ class DataIngestion:
         except Exception as e:
             raise NetworkSecurityException(e, sys)
     
-    def initiate_data_ingestion(self):
+    def initiate_data_ingestion(self) -> DataIngestionArtifact:
         try: 
             df = self.export_collection_as_dataframe()
             df = self.export_data_into_feature_store(df)
