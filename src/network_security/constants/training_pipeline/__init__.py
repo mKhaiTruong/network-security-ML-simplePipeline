@@ -2,6 +2,8 @@ import os, sys, numpy as np, pandas as pd
 
 
 SCHEMA_FILE_PATH: str = os.path.join("data_schema", "schema.yaml")
+SAVE_MODEL_DIR: str = os.path.join("saved_models")
+MODEL_FILE_NAME: str = "model.pkl"
 
 '''
 defining common constant variables for training pipeline
@@ -12,7 +14,6 @@ ARTIFACT_DIR: str = "Artifacts"
 FILE_NAME: str = "phishingData.csv"
 TRAIN_FILE_NAME: str = "train.csv"
 TEST_FILE_NAME: str = "test.csv"
-
 
 '''
 Data INGESTION related constant start
@@ -46,3 +47,12 @@ DATA_TRANSFORMATION_INPUT_PARAMS: dict ={
 } # knn imputer to replace missing values
 
 PREPROCESSING_OBJECT_FILE_NAME: str = "preprocessing.pkl"
+
+'''
+Model Trainer related constant start
+'''
+MODEL_TRAINER_DIR_NAME: str = "model_trainer"
+MODEL_TRAINER_TRAINED_MODEL_DIR: str = "trained_model"
+MODEL_TRAINER_TRAINED_MODEL_NAME: str = "model.pkl"
+MODEL_TRAINER_EXPECTED_SCORE: float = 0.6
+MODEL_TRAINER_OVER_FITTING_UNDER_FITTING_THRESHOLD: float = 0.05
