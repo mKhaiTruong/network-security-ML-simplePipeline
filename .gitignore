@@ -9,3 +9,4 @@ Network_data/
 mlruns/
 final_models/
 predicted_output/
+credentials/

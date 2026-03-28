@@ -19,5 +19,6 @@ certifi
 dill
 dagshub
 fastapi
+google-cloud-storage
 
 # -e .

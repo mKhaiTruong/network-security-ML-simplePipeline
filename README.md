@@ -17,25 +17,29 @@ Each component communicates via **Artifacts** — lightweight objects carrying o
 ## Components
 
 ### 1. Data Ingestion
+
 Pulls raw network traffic data and splits into train/test sets. Standard component, nothing unusual.
 
 ### 2. Data Validation
+
 Checks schema, data types, and drift against a reference schema. Ensures garbage doesn't flow downstream.
 
 ### 3. Data Transformation
+
 The first interesting component.
 
 **Why KNNImputer?**
 Tabular/structured data almost always has missing values. Unlike image data (where you just drop corrupted samples), network traffic logs can have partial entries that still carry signal. KNNImputer fills missing values based on similar rows — better than mean/median imputation for this kind of data.
 
 **Why save the preprocessor?**
-The `StandardScaler` and `KNNImputer` *learn* statistics from training data (mean, std, neighbor distances). These stats must be frozen and reused at inference time. If you refit on new data, you get different numbers → model sees input it was never trained on → silent wrong predictions.
+The `StandardScaler` and `KNNImputer` _learn_ statistics from training data (mean, std, neighbor distances). These stats must be frozen and reused at inference time. If you refit on new data, you get different numbers → model sees input it was never trained on → silent wrong predictions.
 
 This is why `preprocessor.pkl` is saved alongside the model, and why `NetworkModel` wraps both together. At inference: raw data in, prediction out — no manual transform step.
 
 > This is different from CV/vision pipelines where normalization stats (e.g. ImageNet mean/std) are hardcoded. In tabular data, stats come from your specific dataset and must be persisted.
 
 ### 4. Model Trainer
+
 The most complex component.
 
 **Models evaluated:** Random Forest, Decision Tree, Gradient Boosting, Logistic Regression, AdaBoost — with GridSearchCV hyperparameter tuning per model.
@@ -46,19 +50,24 @@ R² is a regression metric. It measures how well predictions explain variance in
 
 For network security classification:
 
-| Metric | What it answers |
-|---|---|
+| Metric        | What it answers                                                |
+| ------------- | -------------------------------------------------------------- |
 | **Precision** | Of all flagged threats, how many were real? (false alarm rate) |
-| **Recall** | Of all real threats, how many did we catch? (miss rate) |
-| **F1** | Harmonic mean of both — single score balancing the two |
+| **Recall**    | Of all real threats, how many did we catch? (miss rate)        |
+| **F1**        | Harmonic mean of both — single score balancing the two         |
 
-In security contexts, **missing a real threat (low recall) is usually worse** than a false alarm (low precision). F1 gives a balanced view; precision/recall separately tell you *which direction* your model is failing.
+In security contexts, **missing a real threat (low recall) is usually worse** than a false alarm (low precision). F1 gives a balanced view; precision/recall separately tell you _which direction_ your model is failing.
 
 **Best model selection:**
 `GridSearchCV` returns `best_estimator_` — the already-tuned, already-fitted model. This is extracted directly and used for prediction, avoiding redundant refit calls.
 
 **Overfitting check:**
 Train metrics and test metrics are both computed and stored in the artifact. If `train_score >> test_score`, the model is overfitting. This comparison is passed downstream to the Model Evaluation component.
+
+**Final Model and Artifact Pusher to Cloud**
+
+- GCS bucket for artifact and best model storage
+- DagsHub/MLflow cho experiment tracking
 
 ---
 
