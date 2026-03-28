@@ -6,3 +6,4 @@ artifacts/
 .env
 *.egg-info/
 Network_data/
+mlruns/

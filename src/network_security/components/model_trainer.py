@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, mlflow
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
@@ -29,6 +29,18 @@ class ModelTrainer:
         except Exception as e:
             raise NetworkSecurityException(e, sys)
     
+    def track_mlflow(self, best_model, classification_metrics):
+        with mlflow.start_run():
+            f1_score = classification_metrics.f1_score
+            precision_score = classification_metrics.precision_score
+            recall_score = classification_metrics.recall_score
+            
+            mlflow.log_metric(key="f1_score", value=f1_score)
+            mlflow.log_metric(key="precision_score", value=precision_score)
+            mlflow.log_metric(key="recall_score", value=recall_score)
+            mlflow.sklearn.log_model(best_model, "model")
+            
+    
     def train_model(self, X_train, y_train, x_test, y_test):
         
         models = {
@@ -50,12 +62,12 @@ class ModelTrainer:
             },
             "Gradient Boosting": {
                 'learning_rate': [0.1, 0.01, 0.05, 0.001],
-                'subsample': [0.6, 0.7, 0.075, 0.8, 0.85, 0.9],  
+                'subsample': [0.6, 0.7, 0.075,0.85, 0.9],  
                 'n_estimators':  [8, 16, 32, 64, 128, 256],
             },
             "Logistic Regression": {},
             "AdaBoost": {
-                'learning_rate': [0.1, 0.01, 0.05, 0.001],
+                'learning_rate': [0.1, 0.01, 0.001],
                 'n_estimators':  [8, 16, 32, 64, 128, 256],
             },
         }
@@ -68,7 +80,6 @@ class ModelTrainer:
         best_model_name = max(model_report, key=model_report.get)
         best_model = best_estimators[best_model_name]
         
-        # Track the MLFlow Model
         '''
             We use best model to predict the train and test data, 
             to check if the model is overfitting or not
@@ -83,6 +94,12 @@ class ModelTrainer:
         
         y_test_pred = best_model.predict(x_test)
         classification_test_metrics  = get_classification_score(y_true=y_test, y_pred=y_test_pred)
+
+
+        # Track the MLFlow Model
+        self.track_mlflow(best_model, classification_train_metrics)
+        self.track_mlflow(best_model, classification_test_metrics)
+        
 
         # Preprocessor - a standard scaler
         preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
