@@ -60,24 +60,31 @@ class ModelTrainer:
             },
         }
         
-        model_report: dict = evaluate_models(
+        model_report, best_estimators = evaluate_models(
             X_train=X_train, y_train=y_train, x_test=x_test, y_test=y_test,
             models=models, param=params
         )
         
-        best_model_score = max(sorted(model_report.values()))
-        best_model_name  = list(model_report.keys())[
-            list(model_report.values()).index(best_model_score)
-        ]
-        best_model = models[best_model_name]
+        best_model_name = max(model_report, key=model_report.get)
+        best_model = best_estimators[best_model_name]
         
+        # Track the MLFlow Model
+        '''
+            We use best model to predict the train and test data, 
+            to check if the model is overfitting or not
+            
+            Rule of thumb:
+            train_score >> test_score  →  overfit
+            train_score ≈ test_score   →  ổn
+            train_score < test_score   →  thường không xảy ra, nếu có thì data leak
+        '''
         y_train_pred = best_model.predict(X_train)
         classification_train_metrics = get_classification_score(y_true=y_train, y_pred=y_train_pred)
         
-        # Track the MLFlow
         y_test_pred = best_model.predict(x_test)
         classification_test_metrics  = get_classification_score(y_true=y_test, y_pred=y_test_pred)
-    
+
+        # Preprocessor - a standard scaler
         preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
         model_dir_path = os.path.dirname(self.model_trainer_config.trained_model_file_path)
         os.makedirs(model_dir_path, exist_ok=True)
