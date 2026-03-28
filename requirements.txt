@@ -1,6 +1,5 @@
 python-dotenv
-Flask
-Flask-Cors
+python-multipart
 pytest
 pandas
 mlflow
@@ -18,5 +17,7 @@ pymongo[srv]==3.12
 pymongo
 certifi
 dill
+dagshub
+fastapi
 
 # -e .

@@ -1,4 +1,6 @@
-import os, sys, mlflow
+import os, sys, mlflow, dagshub
+from dotenv import load_dotenv
+load_dotenv()
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
@@ -20,6 +22,9 @@ from src.network_security.utils.main_utils.utils import evaluate_models
 from src.network_security.utils.ml_utils.metric.classification_metric import get_classification_score
 from src.network_security.utils.ml_utils.model.estimator import NetworkModel
 
+os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("DAGSHUB_REPO_OWNER")
+os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("DAGSHUB_USER_TOKEN")
+
 class ModelTrainer:
     def __init__(self, model_trainer_config: ModelTrainerConfig,
                 data_transformation_artifact: DataTransformationArtifact):
@@ -30,6 +35,12 @@ class ModelTrainer:
             raise NetworkSecurityException(e, sys)
     
     def track_mlflow(self, best_model, classification_metrics):
+        dagshub.init(
+            repo_owner=os.getenv("DAGSHUB_REPO_OWNER"), 
+            repo_name=os.getenv("DAGSHUB_REPO_NAME"), 
+            mlflow=True
+        )
+        
         with mlflow.start_run():
             f1_score = classification_metrics.f1_score
             precision_score = classification_metrics.precision_score
@@ -99,7 +110,7 @@ class ModelTrainer:
         # Track the MLFlow Model
         self.track_mlflow(best_model, classification_train_metrics)
         self.track_mlflow(best_model, classification_test_metrics)
-        
+        save_object("final_models/model.pkl", best_model)
 
         # Preprocessor - a standard scaler
         preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)

@@ -7,3 +7,5 @@ artifacts/
 *.egg-info/
 Network_data/
 mlruns/
+final_models/
+predicted_output/
