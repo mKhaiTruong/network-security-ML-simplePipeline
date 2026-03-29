@@ -11,7 +11,7 @@ RUN apt-get update -y && \
 
 COPY . /app
 
-ENV PYTHONPATH=/app     # ← thêm dòng này để fix Cloud run ko chạy
+ENV PYTHONPATH=/app
 
 EXPOSE 8000
 
