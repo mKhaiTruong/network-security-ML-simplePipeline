@@ -10,3 +10,4 @@ mlruns/
 final_models/
 predicted_output/
 credentials/
+mlflow.db
