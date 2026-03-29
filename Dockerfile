@@ -11,7 +11,7 @@ RUN apt-get update -y && \
 
 COPY . /app
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app:/app/src
 
 EXPOSE 8000
 
