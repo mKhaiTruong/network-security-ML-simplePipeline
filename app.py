@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MONGO_DB_URL = os.getenv("MONGO_DB_URL")
-print(MONGO_DB_URL)
 
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -68,13 +67,15 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
         y_pred = network_model.predict(x=df)
         df['predicted_column'] = y_pred
         
+        os.makedirs("predicted_output", exist_ok=True)
         df.to_csv("predicted_output/prediction.csv", index=False, header=True)
         table_html = df.to_html(classes='table table-striped')
         
-        return templates.TemplateResponse("index.html", {
-            "request": request,
-            "table": table_html
-        })
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={"table": table_html}
+        )
         
     except Exception as e:
         raise NetworkSecurityException(e, sys)

@@ -1,0 +1,17 @@
+python-dotenv
+python-multipart
+pandas
+mlflow
+numpy
+fastapi
+uvicorn
+python-box
+pyYAML
+types-PyYAML
+scikit-learn
+dagshub
+pymongo[srv]==3.12
+google-cloud-storage
+
+pywin32 ; platform_system == "Windows"
+pywinpty ; platform_system == "Windows"

@@ -1,15 +1,14 @@
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
+COPY requirements.txt .
 
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends gcc && \
-    pip install --no-cache-dir -r requirements.txt && \
-    apt-get clean
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app
+COPY . .
+
+RUN pip install --no-cache-dir -e .
 
 ENV PYTHONPATH=/app:/app/src
 
