@@ -79,7 +79,7 @@ def download_models_from_gcs():
         latest_model.download_to_filename("final_models/model.pkl")
         latest_preprocessor.download_to_filename("final_models/preprocessor.pkl")
         
-        logging.info("Downloaded latest model and preprocessor from GCS")
+        logger.info("Downloaded latest model and preprocessor from GCS")
     except Exception as e:
         raise NetworkSecurityException(e, sys)
 
