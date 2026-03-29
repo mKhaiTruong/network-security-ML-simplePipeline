@@ -16,7 +16,7 @@ from starlette.responses import RedirectResponse
 from src.network_security.exception.exception import NetworkSecurityException
 from src.network_security.logging.logger import logger
 from src.network_security.pipeline.training_pipeline import TrainingPipeline
-from src.network_security.utils.main_utils.utils import load_object
+from src.network_security.utils.main_utils.utils import load_object, download_models_from_gcs
 from src.network_security.utils.ml_utils.model.estimator import NetworkModel
 
 from src.network_security.constants.training_pipeline import (
@@ -27,6 +27,9 @@ from src.network_security.constants.training_pipeline import (
 client = pymongo.MongoClient(MONGO_DB_URL, tlsCAFile=ca)
 database = client[DATA_INGESTION_DATABASE_NAME]
 collection = database[DATA_INGESTION_COLLECTION_NAME]
+
+# Download models from GCS
+download_models_from_gcs()
 
 app = FastAPI()
 origins = ["*"]

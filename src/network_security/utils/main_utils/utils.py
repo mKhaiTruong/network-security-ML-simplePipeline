@@ -1,4 +1,5 @@
 import os, sys, yaml, numpy as np, pickle
+from google.cloud import storage
 from src.network_security.exception.exception import NetworkSecurityException
 from src.network_security.logging.logger import logger
 
@@ -57,6 +58,28 @@ def load_object(file_path: str) -> object:
         with open(file_path, "rb") as file_obj:
             print(file_obj)
             return pickle.load(file_obj)
+    except Exception as e:
+        raise NetworkSecurityException(e, sys)
+    
+def download_models_from_gcs():
+    try: 
+        client = storage.Client()
+        bucket = client.bucket(os.getenv("GOOGLE_BUCKET_NAME"))
+        
+        os.makedirs("final_models", exist_ok=True)
+        blobs = list(bucket.list_blobs(prefix="final_model/"))
+        
+        # Sort based on timestamp
+        model_blobs = [b for b in blobs if b.name.endswith("model.pkl")]
+        preprocessor_blobs = [b for b in blobs if b.name.endswith("preprocessor.pkl")]
+        
+        latest_model = sorted(model_blobs, key=lambda b: b.updated, reverse=True)[0]
+        latest_preprocessor = sorted(preprocessor_blobs, key=lambda b: b.updated, reverse=True)[0]
+        
+        latest_model.download_to_filename("final_models/model.pkl")
+        latest_preprocessor.download_to_filename("final_models/preprocessor.pkl")
+        
+        logging.info("Downloaded latest model and preprocessor from GCS")
     except Exception as e:
         raise NetworkSecurityException(e, sys)
 
